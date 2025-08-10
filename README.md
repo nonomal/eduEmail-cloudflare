@@ -28,12 +28,12 @@ Cloudflare Email Routing (邮件路由)
 ## 部署前准备
 
 ### 1. 域名准备
-- 需要一个域名（本项目使用 `yydsoi.edu.kg`）
+- 需要一个域名
 - 域名需要托管在 Cloudflare 上
 
 ### 2. 账号准备
 - Cloudflare 账号
-- UniCloud 账号（阿里云/腾讯云）
+- UniCloud 账号（阿里云/腾讯云/支付宝云）
 
 ## 第一步：Cloudflare 配置
 
@@ -365,3 +365,4 @@ static setCorsHeaders(origin, additionalHeaders = {}) {
 ---
 
 **注意**：部署前请仔细阅读本文档，确保所有配置信息正确填写。建议先在测试环境中验证功能正常后再部署到生产环境。
+
