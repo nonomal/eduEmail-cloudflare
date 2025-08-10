@@ -1,0 +1,9 @@
+{
+  "name": "GET_all_temp_emails",
+  "version": "1.0.0",
+  "description": "从Cloudflare获取所有临时邮箱记录",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^1.5.0"
+  }
+}

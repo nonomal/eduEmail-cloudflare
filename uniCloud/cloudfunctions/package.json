@@ -1,0 +1,23 @@
+{
+  "name": "temp-email-cloudfunctions",
+  "version": "1.0.0",
+  "description": "临时邮箱生成器云函数依赖包",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "temp-email",
+    "cloudflare",
+    "unicloud",
+    "email-routing"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

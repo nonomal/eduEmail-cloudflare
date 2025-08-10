@@ -1,0 +1,7 @@
+{
+  "name": "GET_cloudflare_edukg_email",
+  "version": "1.0.0",
+  "description": "获取cloudflare_edukg_email数据集中的最新邮件",
+  "main": "index.js",
+  "dependencies": {}
+}

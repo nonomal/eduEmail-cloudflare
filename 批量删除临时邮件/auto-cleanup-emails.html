@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动批量删除临时邮箱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #856404;
+        }
+
+        .warning h3 {
+            margin-bottom: 10px;
+            color: #d63031;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 25px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .email-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .email-item {
+            background: white;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .email-item.deleting {
+            opacity: 0.6;
+            border-left-color: #ffa500;
+        }
+
+        .email-item.deleted {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .email-item.failed {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .email-address {
+            font-family: monospace;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .email-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-deleting {
+            background: #ffeaa7;
+            color: #d68910;
+        }
+
+        .status-deleted {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .log-section {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .log-section.show {
+            display: block;
+        }
+
+        .current-operation {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #1565c0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .current-operation.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧹 自动批量删除临时邮箱</h1>
+            <p>一键自动获取并删除所有临时邮箱</p>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ 重要警告</h3>
+            <ul>
+                <li>此工具将自动获取数据库中的所有临时邮箱并删除</li>
+                <li>删除操作包括：Cloudflare路由 + 邮件数据 + 邮箱记录</li>
+                <li>删除操作不可撤销，请谨慎使用</li>
+                <li>建议先点击"获取邮箱列表"查看将要删除的内容</li>
+            </ul>
+        </div>
+
+        <div class="stats-section">
+            <h3>📊 删除统计</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalEmails">-</div>
+                    <div class="stat-label">总邮箱数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalMessages">-</div>
+                    <div class="stat-label">总邮件数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="deletedCount">0</div>
+                    <div class="stat-label">已删除</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="failedCount">0</div>
+                    <div class="stat-label">删除失败</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="current-operation" id="currentOperation">
+            正在执行操作...
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-info" onclick="loadEmailList()" id="loadBtn">📥 获取邮箱列表</button>
+            <button class="btn btn-danger" onclick="confirmAndDeleteAll()" id="deleteBtn">🗑️ 一键删除全部</button>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <h3>🔄 删除进度</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <div class="email-list" id="emailList"></div>
+        </div>
+
+        <div class="log-section" id="logSection">
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let emailsToDelete = [];
+        let isOperating = false;
+        let deletedCount = 0;
+        let failedCount = 0;
+
+        // 日志函数
+        function log(message, type = 'info') {
+            const logSection = document.getElementById('logSection');
+            const logContent = document.getElementById('logContent');
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            
+            logContent.textContent += logEntry;
+            logSection.classList.add('show');
+            logSection.scrollTop = logSection.scrollHeight;
+            
+            console.log(message);
+        }
+
+        // 显示当前操作
+        function showCurrentOperation(message) {
+            const currentOperation = document.getElementById('currentOperation');
+            currentOperation.textContent = message;
+            currentOperation.classList.add('show');
+        }
+
+        // 隐藏当前操作
+        function hideCurrentOperation() {
+            const currentOperation = document.getElementById('currentOperation');
+            currentOperation.classList.remove('show');
+        }
+
+        // 延迟函数
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 更新统计信息
+        function updateStats(totalEmails = null, totalMessages = null) {
+            if (totalEmails !== null) {
+                document.getElementById('totalEmails').textContent = totalEmails;
+            }
+            if (totalMessages !== null) {
+                document.getElementById('totalMessages').textContent = totalMessages;
+            }
+            document.getElementById('deletedCount').textContent = deletedCount;
+            document.getElementById('failedCount').textContent = failedCount;
+        }
+
+        // 更新进度条
+        function updateProgress(current, total) {
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            
+            if (total === 0) {
+                progressSection.classList.remove('show');
+                return;
+            }
+            
+            const percentage = Math.round((current / total) * 100);
+            progressFill.style.width = `${percentage}%`;
+            progressFill.textContent = `${current}/${total} (${percentage}%)`;
+            
+            progressSection.classList.add('show');
+        }
+
+        // 显示邮箱列表
+        function displayEmailList(emails, showStatus = false) {
+            const emailList = document.getElementById('emailList');
+            
+            if (emails.length === 0) {
+                emailList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">没有找到临时邮箱</div>';
+                return;
+            }
+
+            emailList.innerHTML = emails.map((emailData, index) => {
+                const email = typeof emailData === 'string' ? emailData : emailData.email;
+                const emailCount = typeof emailData === 'object' ? emailData.emailCount : 0;
+                
+                return `
+                    <div class="email-item" id="item-${index}">
+                        <div>
+                            <div class="email-address">${email}</div>
+                            <div style="font-size: 0.8rem; color: #666; margin-top: 2px;">
+                                邮件数: ${emailCount} 封
+                            </div>
+                        </div>
+                        ${showStatus ? '<div class="email-status status-pending">等待删除</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 获取邮箱列表
+        async function loadEmailList() {
+            if (isOperating) {
+                alert('操作正在进行中，请稍候...');
+                return;
+            }
+
+            isOperating = true;
+            const loadBtn = document.getElementById('loadBtn');
+            loadBtn.disabled = true;
+            loadBtn.innerHTML = '<span class="loading"></span>获取中...';
+            
+            showCurrentOperation('正在从数据库获取邮箱列表...');
+            log('📥 开始获取邮箱列表...');
+
+            try {
+                const response = await fetch('云函数链接GET_all_temp_emails', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const responseText = await response.text();
+                let data;
+                
+                try {
+                    data = JSON.parse(responseText);
+                    if (data.body && typeof data.body === 'string') {
+                        data = JSON.parse(data.body);
+                    }
+                } catch (parseError) {
+                    throw new Error(`响应解析失败: ${responseText}`);
+                }
+
+                if (data.success && data.data) {
+                    emailsToDelete = data.data.emails;
+                    const stats = data.data.statistics;
+                    
+                    updateStats(stats.totalEmails, stats.totalEmailMessages);
+                    displayEmailList(emailsToDelete, false);
+                    
+                    log(`✅ 成功获取 ${emailsToDelete.length} 个邮箱`);
+                    log(`📊 统计: 总邮箱${stats.totalEmails}个, 活跃${stats.activeEmails}个, 总邮件${stats.totalEmailMessages}封`);
+                    
+                    hideCurrentOperation();
+                    
+                } else {
+                    throw new Error(data.error || '获取邮箱列表失败');
+                }
+
+            } catch (error) {
+                log(`❌ 获取邮箱列表失败: ${error.message}`);
+                alert('获取邮箱列表失败: ' + error.message);
+                hideCurrentOperation();
+            } finally {
+                isOperating = false;
+                loadBtn.disabled = false;
+                loadBtn.textContent = '📥 获取邮箱列表';
+            }
+        }
+
+        // 确认并删除所有邮箱
+        async function confirmAndDeleteAll() {
+            if (isOperating) {
+                alert('操作正在进行中，请稍候...');
+                return;
+            }
+
+            // 如果没有加载邮箱列表，先自动加载
+            if (emailsToDelete.length === 0) {
+                log('📥 邮箱列表为空，自动获取邮箱列表...');
+                await loadEmailList();
+                
+                if (emailsToDelete.length === 0) {
+                    alert('没有找到需要删除的邮箱');
+                    return;
+                }
+            }
+
+            const confirmed = confirm(`确定要删除所有 ${emailsToDelete.length} 个临时邮箱吗？\n\n此操作将：\n- 删除Cloudflare中的邮箱路由\n- 删除数据库中的邮件记录\n- 删除临时邮箱记录\n\n此操作不可撤销！`);
+            
+            if (!confirmed) {
+                return;
+            }
+
+            await executeDeleteAll();
+        }
+
+        // 执行删除所有邮箱
+        async function executeDeleteAll() {
+            isOperating = true;
+            deletedCount = 0;
+            failedCount = 0;
+            
+            const deleteBtn = document.getElementById('deleteBtn');
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<span class="loading"></span>删除中...';
+
+            showCurrentOperation(`正在删除 ${emailsToDelete.length} 个邮箱...`);
+            log(`🚀 开始批量删除 ${emailsToDelete.length} 个邮箱...`);
+            
+            displayEmailList(emailsToDelete, true);
+            updateProgress(0, emailsToDelete.length);
+
+            try {
+                for (let i = 0; i < emailsToDelete.length; i++) {
+                    const emailData = emailsToDelete[i];
+                    const email = typeof emailData === 'string' ? emailData : emailData.email;
+                    const itemElement = document.getElementById(`item-${i}`);
+                    const statusElement = itemElement?.querySelector('.email-status');
+                    
+                    try {
+                        showCurrentOperation(`正在删除: ${email} (${i + 1}/${emailsToDelete.length})`);
+                        log(`🗑️ 正在删除: ${email} (${i + 1}/${emailsToDelete.length})`);
+                        
+                        if (statusElement) {
+                            statusElement.textContent = '删除中...';
+                            statusElement.className = 'email-status status-deleting';
+                        }
+                        if (itemElement) {
+                            itemElement.classList.add('deleting');
+                        }
+
+                        // 调用云函数删除邮箱
+                        const response = await fetch('云函数链接Delete_edu_cloudfare', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ email: email })
+                        });
+
+                        const responseText = await response.text();
+                        let data;
+                        
+                        try {
+                            data = JSON.parse(responseText);
+                            if (data.body && typeof data.body === 'string') {
+                                data = JSON.parse(data.body);
+                            }
+                        } catch (parseError) {
+                            throw new Error(`响应解析失败: ${responseText}`);
+                        }
+
+                        if (data.success) {
+                            deletedCount++;
+                            log(`✅ 成功删除: ${email}`);
+                            
+                            if (data.summary) {
+                                log(`   - Cloudflare路由: ${data.summary.cloudflareRoutes} 个`);
+                                log(`   - 邮件记录: ${data.summary.emailRecords} 条`);
+                                log(`   - 邮箱记录: ${data.summary.tempEmailRecords} 条`);
+                            }
+                            
+                            if (statusElement) {
+                                statusElement.textContent = '已删除';
+                                statusElement.className = 'email-status status-deleted';
+                            }
+                            if (itemElement) {
+                                itemElement.classList.remove('deleting');
+                                itemElement.classList.add('deleted');
+                            }
+                        } else {
+                            throw new Error(data.error || data.message || '删除失败');
+                        }
+
+                    } catch (error) {
+                        failedCount++;
+                        log(`❌ 删除失败: ${email} - ${error.message}`);
+                        
+                        if (statusElement) {
+                            statusElement.textContent = '删除失败';
+                            statusElement.className = 'email-status status-failed';
+                        }
+                        if (itemElement) {
+                            itemElement.classList.remove('deleting');
+                            itemElement.classList.add('failed');
+                        }
+                    }
+
+                    // 更新统计和进度
+                    updateStats();
+                    updateProgress(i + 1, emailsToDelete.length);
+
+                    // 添加延迟避免过于频繁的请求
+                    if (i < emailsToDelete.length - 1) {
+                        await delay(2000); // 2秒延迟
+                    }
+                }
+
+                // 显示最终结果
+                hideCurrentOperation();
+                log('🎉 批量删除操作完成！');
+                log(`📊 总计: ${emailsToDelete.length} 个邮箱`);
+                log(`✅ 成功删除: ${deletedCount} 个`);
+                log(`❌ 删除失败: ${failedCount} 个`);
+
+                alert(`删除完成！\n\n总计: ${emailsToDelete.length} 个邮箱\n成功: ${deletedCount} 个\n失败: ${failedCount} 个`);
+
+            } finally {
+                isOperating = false;
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = '🗑️ 一键删除全部';
+            }
+        }
+
+        // 页面加载时自动获取邮箱列表
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🧹 自动批量删除工具已加载');
+            log('💡 点击"获取邮箱列表"查看将要删除的邮箱，或直接点击"一键删除全部"');
+            updateStats();
+            
+            // 自动获取邮箱列表
+            setTimeout(() => {
+                loadEmailList();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

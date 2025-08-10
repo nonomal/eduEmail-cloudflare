@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>临时邮箱生成器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <div class="logo">📧</div>
+            <h1>临时邮箱生成器</h1>
+            <p class="subtitle">一键生成安全的临时邮箱地址</p>
+
+            <button class="generate-btn" id="generateBtn" onclick="generateEmail()">
+                <span id="btnText">生成新的临时邮箱</span>
+            </button>
+
+            <div class="email-display" id="emailDisplay">
+                <div class="email-label">您的临时邮箱地址</div>
+                <div class="email-address" id="emailAddress"></div>
+                <div class="button-group">
+                    <button class="copy-btn" onclick="copyEmail()">复制邮箱地址</button>
+                    <button class="view-email-btn" id="viewEmailBtn" onclick="viewLatestEmail()">查看邮件</button>
+                    <button class="clear-btn" onclick="clearCurrentEmail()">清除邮箱</button>
+                </div>
+                <div class="email-info" id="emailInfo"></div>
+            </div>
+
+            <div class="email-content" id="emailContent">
+                <div class="email-header">
+                    <h3>最新邮件内容
+                        <button class="refresh-btn" onclick="viewLatestEmail()">刷新</button>
+                    </h3>
+                </div>
+                <div id="emailDetails"></div>
+            </div>
+
+            <div class="status" id="status"></div>
+
+            <div class="features">
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <span>安全可靠，保护您的隐私</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <span>即时生成，无需等待</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔄</span>
+                    <span>可重复使用，灵活便捷</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作者信息区域 -->
+        <div class="author-section">
+            <h2 class="author-title">联系作者</h2>
+            <div class="wechat-qr">
+                <img src="wechat-qr.jpg" alt="作者微信二维码" class="qr-image">
+            </div>
+            <div class="author-info">
+                <p>扫描上方二维码</p>
+                <p>添加微信好友</p>
+                <p class="highlight">获取技术支持</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
