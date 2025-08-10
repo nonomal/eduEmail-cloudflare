@@ -1,328 +1,367 @@
 # 先打个广告
 我的另一个项目*AI公众号自动发文助手：https://github.com/wojiadexiaoming-copy/AIWeChatauto.git
-# 临时邮箱转发系统 - 前端界面
 
-这是基于Cloudflare Email Routing的临时邮箱转发系统前端界面，使用纯HTML、CSS和JavaScript构建。
+# 已部署的链接：https://env-00jxt0xsffn5-static.normal.cloudstatic.cn/cloudfare_workers_email/index.html
 
-## 🌟 核心特性
+# 临时邮箱生成器 - 完整部署指南
 
-### 📧 临时邮箱管理
-- **基于Cloudflare域名**：利用你自己的域名创建临时邮箱（如：temp_abc123@yourdomain.com）
-- **自动转发规则**：通过Cloudflare Email Routing自动转发到你的QQ邮箱
-- **批量管理**：支持创建多个临时邮箱，统一管理和删除
-- **一键复制**：临时邮箱地址自动复制到剪贴板
+## 项目概述
 
-### 🔄 智能邮件监控
-- **实时监控**：持续监控转发到QQ邮箱的邮件
-- **验证码提取**：自动识别并高亮显示各种验证码
-- **时间过滤**：只处理临时邮箱创建后收到的新邮件
-- **状态显示**：实时显示监控状态和统计信息
+这是一个基于 Cloudflare Workers + UniCloud 云函数的临时邮箱生成器项目，支持：
+- 自动生成临时邮箱地址
+- 实时接收和解析邮件
+- 邮件内容查看和管理
+- 批量删除邮箱和邮件
 
-### 🎨 现代化界面
-- **响应式设计**：完美支持桌面和移动设备
-- **环境变量配置**：自动从环境变量加载配置，无需手动输入
-- **动画通知**：邮件到达时的流畅动画效果
-- **广告位预留**：侧边栏预留商业化广告空间
-
-## 🏗️ 工作原理
+## 系统架构
 
 ```
-1. 用户访问网站 → 2. 创建临时邮箱 → 3. Cloudflare创建转发规则
-                                    ↓
-6. 前端显示通知 ← 5. 系统监控QQ邮箱 ← 4. 邮件自动转发到QQ邮箱
+前端 (HTML/CSS/JS) 
+    ↓
+UniCloud 云函数 (Node.js)
+    ↓
+Cloudflare Workers (邮件处理)
+    ↓
+Cloudflare Email Routing (邮件路由)
 ```
 
-### 详细流程：
-1. **域名配置**：使用你在Cloudflare托管的域名
-2. **临时邮箱创建**：系统生成格式为 `temp_随机字符@你的域名.com` 的邮箱地址
-3. **转发规则**：通过Cloudflare API自动创建邮件转发规则
-4. **邮件接收**：任何发送到临时邮箱的邮件都会自动转发到你的QQ邮箱
-5. **实时监控**：系统监控QQ邮箱，检测转发过来的邮件
-6. **智能通知**：在网页上实时显示新邮件，并自动提取验证码
+## 部署前准备
 
-## 📁 文件结构
+### 1. 域名准备
+- 需要一个域名（本项目使用 `yydsoi.edu.kg`）
+- 域名需要托管在 Cloudflare 上
 
-```
-frontend/
-├── index.html          # 主页面
-├── styles.css          # 样式文件
-├── script.js           # JavaScript逻辑
-├── package.json        # 项目配置
-└── README.md          # 说明文档
-```
+### 2. 账号准备
+- Cloudflare 账号
+- UniCloud 账号（阿里云/腾讯云）
 
-## 🚀 使用方法
+## 第一步：Cloudflare 配置
 
-### 1. 直接打开
-```bash
-# 用浏览器直接打开
-open index.html
-```
+### 1.1 获取 Cloudflare API Token
 
-### 2. 本地服务器
-```bash
-# 使用Python
-python -m http.server 8000
-
-# 使用Node.js
-npx serve .
-
-# 然后访问 http://localhost:8000
-```
-
-### 3. 与后端集成
-```bash
-# 从项目根目录启动服务器
-cd ..
-node server.js
-
-# 访问 http://localhost:3000
-```
-
-## 🔧 环境变量配置
-
-### 配置来源
-前端会自动尝试从以下来源加载配置：
-
-1. **服务器API** (`/api/env`) - 推荐方式
-2. **本地存储** (localStorage) - 浏览器缓存
-3. **process.env** (Node.js环境) - 开发环境
-
-### 必需的环境变量
-
-#### Cloudflare配置
-- `TEMP_EMAIL_CF_API_TOKEN` - Cloudflare API令牌（需要Zone:Edit权限）
-- `TEMP_EMAIL_CF_ZONE_ID` - 你的域名在Cloudflare的Zone ID
-- `TEMP_EMAIL_DOMAIN` - 你的域名（如：example.com）
-
-#### QQ邮箱配置
-- `TEMP_EMAIL_QQ_USERNAME` - 你的QQ邮箱地址
-- `TEMP_EMAIL_QQ_PASSWORD` - QQ邮箱授权码（不是QQ密码）
-
-#### 可选配置
-- `TEMP_EMAIL_CHECK_INTERVAL` - 邮件检查间隔（秒，默认10）
-
-### 配置说明
-
-#### 1. Cloudflare设置
-- **域名要求**：必须是在Cloudflare托管的域名
-- **邮件路由**：需要在Cloudflare控制台启用Email Routing功能
-- **API权限**：API Token需要包含Zone:Edit权限
-
-#### 2. QQ邮箱设置
-- **IMAP/SMTP**：需要在QQ邮箱设置中开启IMAP/SMTP服务
-- **授权码**：使用QQ邮箱生成的授权码，不是QQ密码
-- **安全设置**：建议开启QQ邮箱的安全登录功能
-
-## 🎨 界面设计
-
-### 主要功能区域
-- **系统状态**：实时显示Cloudflare和QQ邮箱的配置状态
-- **邮箱管理**：创建和管理基于你域名的临时邮箱
-- **邮件监控**：实时监控转发邮件，显示详细日志
-- **通知系统**：新邮件到达时的动画通知和验证码提取
-
-### 侧边栏商业化
-- **广告位1**：300x250尺寸，适合展示广告
-- **统计面板**：实时显示邮箱数量、邮件统计、运行状态
-- **广告位2**：300x200尺寸，适合推广内容
-
-### 设计亮点
-- **渐变背景**：现代化的蓝紫色渐变设计
-- **卡片布局**：清晰的功能分区和层次感
-- **状态指示**：直观的✅❌⚠️状态图标
-- **动画效果**：流畅的交互反馈和通知动画
-
-## 💡 技术特点
-
-### 前端技术
-- **纯前端**：无需后端即可运行（演示模式）
-- **响应式设计**：自适应各种屏幕尺寸
-- **模块化代码**：清晰的代码结构，易于维护
-- **动画效果**：流畅的用户交互体验
-
-### Cloudflare集成
-- **Email Routing API**：自动创建和管理邮件转发规则
-- **域名管理**：基于你的Cloudflare托管域名
-- **实时配置**：动态创建和删除临时邮箱
-- **安全认证**：使用API Token进行安全访问
-
-### 邮件处理
-- **IMAP监控**：实时监控QQ邮箱的新邮件
-- **智能过滤**：只处理临时邮箱转发的邮件
-- **验证码识别**：支持多种验证码格式的自动提取
-- **时间管理**：基于创建时间过滤邮件
-
-## 🔗 API集成
-
-### Cloudflare Email Routing API
-前端直接集成Cloudflare API来管理临时邮箱：
-
-```javascript
-// 创建邮件转发规则
-POST https://api.cloudflare.com/client/v4/zones/{zone_id}/email/routing/rules
-
-// 删除邮件转发规则  
-DELETE https://api.cloudflare.com/client/v4/zones/{zone_id}/email/routing/rules/{rule_id}
-
-// 查询转发规则列表
-GET https://api.cloudflare.com/client/v4/zones/{zone_id}/email/routing/rules
-```
-
-### 后端API接口（可选）
-如果使用Node.js服务器，支持以下API：
-
-```javascript
-// 环境变量API
-GET /api/env
-
-// 创建临时邮箱API
-POST /api/temp-email
-
-// 检查邮件API
-GET /api/check-emails
-
-// 删除邮箱API
-DELETE /api/temp-email/:id
-```
-
-### 邮件监控
-- **QQ邮箱IMAP**：监控转发到QQ邮箱的邮件
-- **实时检查**：定期检查新邮件（默认10秒间隔）
-- **智能匹配**：识别来自临时邮箱的转发邮件
-
-## 📱 响应式设计
-
-- **桌面端** (>768px)：双栏布局
-- **移动端** (≤768px)：单栏布局
-- **触摸友好**：适合移动设备操作
-
-## 🚀 部署建议
-
-### 前提条件
-1. **Cloudflare账户**：需要有Cloudflare账户并托管域名
-2. **域名配置**：域名必须在Cloudflare进行DNS管理
-3. **邮件路由**：在Cloudflare控制台启用Email Routing功能
-4. **QQ邮箱**：准备一个QQ邮箱用于接收转发邮件
-
-### 静态托管平台
-- **GitHub Pages**：免费，适合开源项目
-- **Netlify**：自动部署，支持环境变量
-- **Vercel**：现代化平台，部署简单
-- **阿里云OSS**：国内访问速度快
-- **腾讯云COS**：成本低，稳定性好
-
-### 部署配置
-1. **环境变量设置**：在托管平台配置环境变量
-2. **域名绑定**：绑定自定义域名（可选）
-3. **HTTPS启用**：确保使用HTTPS访问
-4. **CDN加速**：启用CDN提高访问速度
-
-### 安全建议
-- **API Token权限**：只给予必要的Zone:Edit权限
-- **环境变量保护**：不要在前端代码中硬编码敏感信息
-- **定期更新**：定期更换API Token和邮箱授权码
-- **访问控制**：考虑添加访问密码或IP白名单
-
-## 🔧 自定义
-
-### 修改样式
-编辑 `styles.css` 文件来自定义界面样式。
-
-### 添加功能
-在 `script.js` 中添加新的JavaScript功能。
-
-### 修改布局
-编辑 `index.html` 来调整页面布局。
-
-## 📄 许可证
-
-MIT License## 
-🌐 Cloudflare Email Routing 详解
-
-### 什么是Cloudflare Email Routing？
-Cloudflare Email Routing是一个免费的邮件转发服务，允许你：
-- 使用自己的域名接收邮件
-- 将邮件转发到任何邮箱地址
-- 通过API动态管理转发规则
-- 无需自建邮件服务器
-
-### 设置步骤
-
-#### 1. 域名配置
-```bash
-# 确保域名在Cloudflare托管
-# DNS记录会自动配置MX记录
-```
-
-#### 2. 启用Email Routing
-1. 登录Cloudflare控制台
-2. 选择你的域名
-3. 进入"邮件" → "邮件路由"
-4. 点击"启用邮件路由"
-5. 添加目标邮箱地址（你的QQ邮箱）
-
-#### 3. API Token配置
-1. 进入"我的个人资料" → "API令牌"
-2. 创建自定义令牌
-3. 权限设置：
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. 点击右上角头像 → "My Profile"
+3. 选择 "API Tokens" 标签
+4. 点击 "Create Token"
+5. 选择 "Custom token" 模板
+6. 配置权限：
+   ```
+   Token name: Email-Routing-API
+   Permissions:
    - Zone:Zone:Read
-   - Zone:Zone Settings:Edit
    - Zone:Email Routing Rules:Edit
+   - Zone:Zone Settings:Edit
+   - Account：Workers Scripts：Edit
 
-#### 4. 测试配置
-```bash
-# 发送测试邮件到 test@yourdomain.com
-# 检查是否转发到QQ邮箱
+   Account Resources: Include - All accounts
+   Zone Resources: Include - Specific zone - [你的域名]
+   ```
+7. 点击 "Continue to summary" → "Create Token"
+8. **重要：复制并保存生成的 Token**
+
+### 1.2 获取 Zone ID
+
+1. 在 Cloudflare Dashboard 中选择你的域名
+2. 在右侧边栏找到 "Zone ID"
+3. 复制并保存 Zone ID
+
+### 1.3 启用 Email Routing
+
+1. 在域名管理页面，点击左侧 "Email" → "Email Routing"
+2. 点击 "Enable Email Routing"
+3. 按照提示添加 MX 记录到你的域名
+4. 等待 DNS 记录生效（通常几分钟）
+
+### 1.4 创建 Cloudflare Worker
+
+1. 在 Cloudflare Dashboard 中，点击 "Workers & Pages"
+2. 点击 "Create application" → "Create Worker"
+3. 输入 Worker 名称（例如：`email-processor`）
+4. 点击 "Deploy"
+5. 记录 Worker 名称，后续配置需要用到
+
+### 1.5 配置 Worker 代码
+
+1. 在 Worker 编辑页面，将 `cloudfare-workers后端/workers.js` 的内容复制到编辑器中
+2. 点击 "Save and Deploy"
+
+## 第二步：UniCloud 云函数部署
+
+### 2.1 创建 UniCloud 项目
+
+1. 登录 [UniCloud 控制台](https://unicloud.dcloud.net.cn/)
+2. 创建新项目或使用现有项目
+3. 记录项目的云函数访问域名
+
+### 2.2 部署云函数
+
+需要部署以下 4 个云函数：
+
+#### 2.2.1 generate-email 云函数
+
+1. 创建云函数 `generate-email`
+2. 将 `uniCloud/cloudfunctions/generate-email/index.js` 内容复制到云函数中
+3. **重要：修改配置信息**：
+   ```javascript
+   const config = {
+     cloudflare: {
+       api_token: "你的_CLOUDFLARE_API_TOKEN",
+       zone_id: "你的_ZONE_ID", 
+       domain: "你的域名"
+     },
+     workers: {
+       worker_name: "你的_WORKER_名称",
+       worker_route: "你的域名",
+       use_worker_first: true
+     }
+   };
+   ```
+4. 安装依赖：在云函数根目录创建 `package.json`：
+   ```json
+   {
+     "name": "generate-email",
+     "version": "1.0.0",
+     "dependencies": {
+       "axios": "^1.6.0"
+     }
+   }
+   ```
+5. 上传并部署
+
+#### 2.2.2 GET_cloudflare_edukg_email 云函数
+
+1. 创建云函数 `GET_cloudflare_edukg_email`
+2. 将对应的 `index.js` 内容复制到云函数中
+3. 上传并部署
+
+#### 2.2.3 GET_all_temp_emails 云函数
+
+1. 创建云函数 `GET_all_temp_emails`
+2. 将对应的 `index.js` 内容复制到云函数中
+3. **修改配置信息**：
+   ```javascript
+   const config = {
+     cloudflare: {
+       api_token: "你的_CLOUDFLARE_API_TOKEN",
+       zone_id: "你的_ZONE_ID",
+       domain: "你的域名"
+     }
+   };
+   ```
+4. 安装 axios 依赖
+5. 上传并部署
+
+#### 2.2.4 Delete_edu_cloudfare 云函数
+
+1. 创建云函数 `Delete_edu_cloudfare`
+2. 将对应的 `index.js` 内容复制到云函数中
+3. **修改配置信息**（同上）
+4. 安装 axios 依赖
+5. 上传并部署
+
+#### 2.2.5 POST_cloudflare_edukg_email 云函数
+
+这个云函数用于接收 Worker 发送的邮件数据：
+
+1. 创建云函数 `POST_cloudflare_edukg_email`
+2. 创建以下代码：
+   ```javascript
+   'use strict';
+
+   exports.main = async (event, context) => {
+     console.log('=== 接收邮件数据 ===');
+     console.log('接收到的数据:', JSON.stringify(event, null, 2));
+     
+     try {
+       const { emailInfo, emailContent } = event;
+       
+       if (!emailInfo || !emailContent) {
+         throw new Error('邮件数据格式错误');
+       }
+       
+       // 保存到数据库
+       const db = uniCloud.database();
+       const result = await db.collection('cloudflare_edukg_email').add({
+         emailFrom: emailInfo.from,
+         emailTo: emailInfo.to,
+         emailSubject: emailInfo.subject,
+         emailDate: emailInfo.date,
+         emailText: emailContent.text,
+         emailHtml: emailContent.html,
+         emailType: emailInfo.hasHtml ? 'html' : 'text',
+         createTime: Date.now()
+       });
+       
+       console.log('邮件保存成功:', result);
+       
+       return {
+         success: true,
+         message: '邮件保存成功',
+         insertedId: result.id
+       };
+     } catch (error) {
+       console.error('保存邮件失败:', error);
+       return {
+         success: false,
+         error: error.message
+       };
+     }
+   };
+   ```
+3. 上传并部署
+
+### 2.3 配置数据库集合
+
+在 UniCloud 控制台中创建以下数据库集合：
+
+1. `temp_emails` - 存储临时邮箱记录
+2. `cloudflare_edukg_email` - 存储邮件内容
+
+## 第三步：前端部署
+
+### 3.1 修改前端配置
+
+编辑 `前端/script.js`，修改云函数访问地址：
+
+```javascript
+// 将所有云函数 URL 替换为你的实际地址
+const CLOUD_FUNCTION_BASE_URL = 'https://你的项目域名.dev-hz.cloudbasefunction.cn';
+
+// 例如：
+// '云函数链接generate-email'
+// 替换为：
+// 'https://你的项目域名.dev-hz.cloudbasefunction.cn/generate-email'
 ```
 
-### 临时邮箱格式
-系统会自动生成以下格式的临时邮箱：
+### 3.2 部署前端
+
+1. 将 `前端` 目录下的所有文件上传到你的 Web 服务器
+2. 或者使用 GitHub Pages、Vercel、Netlify 等静态托管服务
+
+## 第四步：配置邮件路由
+
+### 4.1 更新 Worker 配置
+
+在 Cloudflare Worker 中，确保 `callUniCloudFunction` 方法中的云函数 URL 正确：
+
+```javascript
+const cloudFunctionUrl = 'https://你的项目域名.dev-hz.cloudbasefunction.cn/POST_cloudflare_edukg_email';
 ```
-temp_a1b2c3d4@yourdomain.com
-temp_x9y8z7w6@yourdomain.com
-temp_m5n4o3p2@yourdomain.com
+
+### 4.2 测试邮件路由
+
+1. 使用前端生成一个临时邮箱
+2. 向该邮箱发送测试邮件
+3. 检查 Worker 日志和云函数日志
+4. 确认邮件是否正确保存到数据库
+
+## 第五步：域名和 SSL 配置
+
+### 5.1 配置自定义域名（可选）
+
+如果要使用自定义域名访问前端：
+
+1. 在域名 DNS 中添加 A 记录或 CNAME 记录
+2. 配置 SSL 证书
+3. 更新 CORS 配置
+
+### 5.2 更新 CORS 配置
+
+在所有云函数中，确保 CORS 配置包含你的前端域名：
+
+```javascript
+static setCorsHeaders(origin, additionalHeaders = {}) {
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': origin, // 或指定具体域名
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400',
+    ...additionalHeaders
+  };
+}
 ```
 
-### 转发规则管理
-- **自动创建**：每个临时邮箱对应一个转发规则
-- **动态管理**：通过API实时创建和删除规则
-- **批量操作**：支持同时管理多个临时邮箱
-- **规则清理**：删除临时邮箱时自动清理转发规则
+## 配置文件汇总
 
-## 🔍 常见问题
+### Cloudflare 配置
+- **API Token**: 在 Cloudflare Profile → API Tokens 中创建
+- **Zone ID**: 在域名管理页面右侧边栏获取
+- **Worker 名称**: 创建 Worker 时设置的名称
+- **域名**: 你的实际域名
 
-### Q: 为什么选择Cloudflare？
-A: Cloudflare Email Routing提供：
-- ✅ 完全免费的邮件转发服务
-- ✅ 强大的API支持动态管理
-- ✅ 高可靠性和全球CDN网络
-- ✅ 无需自建邮件服务器
-- ✅ 支持自定义域名
+### UniCloud 配置
+- **云函数域名**: 在 UniCloud 控制台获取
+- **数据库集合**: `temp_emails`, `cloudflare_edukg_email`
 
-### Q: 临时邮箱有数量限制吗？
-A: Cloudflare Email Routing的限制：
-- 免费版：每个域名最多200个转发规则
-- 付费版：更高的限制
-- 本系统默认限制：10个临时邮箱（可配置）
+## 常见问题排查
 
-### Q: 邮件转发有延迟吗？
-A: 通常情况下：
-- Cloudflare转发延迟：几秒到几十秒
-- 系统检测延迟：10秒（可配置）
-- 总延迟：通常在1分钟内
+### 1. 邮件接收不到
+- 检查 MX 记录是否正确配置
+- 确认 Email Routing 已启用
+- 查看 Worker 日志是否有错误
 
-### Q: 支持哪些邮件服务商？
-A: 目前支持：
-- ✅ QQ邮箱（主要支持）
-- ✅ 163邮箱（理论支持）
-- ✅ Gmail（理论支持）
-- ✅ 其他支持IMAP的邮箱
+### 2. API 调用失败
+- 检查 API Token 权限是否正确
+- 确认 Zone ID 是否匹配
+- 查看是否触发了 API 限制（429 错误）
 
-### Q: 如何确保安全性？
-A: 安全措施：
-- 🔒 API Token权限最小化
-- 🔒 环境变量存储敏感信息
-- 🔒 HTTPS加密传输
-- 🔒 定期更换认证信息
-- 🔒 临时邮箱自动过期清理
+### 3. 云函数调用失败
+- 检查云函数 URL 是否正确
+- 确认 CORS 配置是否包含前端域名
+- 查看云函数日志排查具体错误
+
+### 4. 数据库操作失败
+- 确认数据库集合是否已创建
+- 检查数据格式是否正确
+- 查看云函数权限配置
+
+## 安全建议
+
+1. **API Token 安全**：
+   - 不要在前端代码中暴露 API Token
+   - 定期轮换 API Token
+   - 使用最小权限原则
+
+2. **访问控制**：
+   - 配置适当的 CORS 策略
+   - 考虑添加访问频率限制
+   - 监控异常访问
+
+3. **数据保护**：
+   - 定期清理过期邮件数据
+   - 考虑对敏感邮件内容加密
+   - 备份重要配置信息
+
+## 监控和维护
+
+1. **日志监控**：
+   - 定期检查 Worker 日志
+   - 监控云函数执行情况
+   - 关注错误率和响应时间
+
+2. **性能优化**：
+   - 监控 API 调用频率
+   - 优化数据库查询
+   - 考虑添加缓存机制
+
+3. **定期维护**：
+   - 清理过期的临时邮箱
+   - 更新依赖包版本
+   - 备份重要数据
+
+## 开源许可
+
+本项目采用 MIT 许可证，欢迎贡献代码和提出改进建议。
+
+## 联系方式
+
+如有问题或建议，请通过以下方式联系：
+- GitHub Issues
+- 微信：[![wechat-qr](https://github.com/user-attachments/assets/e3b078f3-b164-4eb8-96ee-be1e96f50391)
+]
+
+---
+
+**注意**：部署前请仔细阅读本文档，确保所有配置信息正确填写。建议先在测试环境中验证功能正常后再部署到生产环境。
