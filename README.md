@@ -3,6 +3,8 @@
 
 # 已部署的链接：https://env-00jxt0xsffn5-static.normal.cloudstatic.cn/cloudfare_workers_email/index.html
 
+# 完整的Augmet注册教程 https://mp.weixin.qq.com/s/dZVp-ccPFm771CfCTkrL_w
+
 # 临时邮箱生成器 - 完整部署指南
 
 ## 项目概述
@@ -365,4 +367,5 @@ static setCorsHeaders(origin, additionalHeaders = {}) {
 ---
 
 **注意**：部署前请仔细阅读本文档，确保所有配置信息正确填写。建议先在测试环境中验证功能正常后再部署到生产环境。
+
 
