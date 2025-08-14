@@ -1,7 +1,11 @@
 # 先打个广告
 我的另一个项目*AI公众号自动发文助手：https://github.com/wojiadexiaoming-copy/AIWeChatauto.git
 
-# 已部署的链接：https://env-00jxt0xsffn5-static.normal.cloudstatic.cn/cloudfare_workers_email/index.html
+# 已部署的链接：<img width="416" height="380" alt="微信图片_2025-06-09_185727_669" src="https://github.com/user-attachments/assets/601f37cd-f508-4548-9cab-37f746881653" />
+【原链接被攻打了，现在改成小程序日限制5次，生成失败再次点击一下就好，网络延迟导致。
+<img width="301" height="382" alt="63c080bc3f8ba087a7889f0a9f83df95" src="https://github.com/user-attachments/assets/e1a2a958-a581-41fc-a1df-6e8b56f6cf5f" />
+】
+
 
 # 完整的Augmet注册教程 https://mp.weixin.qq.com/s/dZVp-ccPFm771CfCTkrL_w
 
@@ -367,5 +371,6 @@ static setCorsHeaders(origin, additionalHeaders = {}) {
 ---
 
 **注意**：部署前请仔细阅读本文档，确保所有配置信息正确填写。建议先在测试环境中验证功能正常后再部署到生产环境。
+
 
 
