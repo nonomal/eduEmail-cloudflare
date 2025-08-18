@@ -6,6 +6,9 @@
 <img width="301" height="382" alt="63c080bc3f8ba087a7889f0a9f83df95" src="https://github.com/user-attachments/assets/e1a2a958-a581-41fc-a1df-6e8b56f6cf5f" />
 】
 
+# 编程软件多开器
+（多软件同时打开，多账号登录，不同步项目、机器ID、账号登缓存，可实现cursor本账号在本机使用多次试用账号的问题）
+https://www.douyin.com/user/self?modal_id=7539884476013301007
 
 # 完整的Augmet注册教程 https://mp.weixin.qq.com/s/dZVp-ccPFm771CfCTkrL_w
 
@@ -371,6 +374,7 @@ static setCorsHeaders(origin, additionalHeaders = {}) {
 ---
 
 **注意**：部署前请仔细阅读本文档，确保所有配置信息正确填写。建议先在测试环境中验证功能正常后再部署到生产环境。
+
 
 
 
